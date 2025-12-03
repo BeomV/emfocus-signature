@@ -1,8 +1,15 @@
 'use client';
 
 import { useState } from 'react';
+import { createClient } from '@supabase/supabase-js';
 import SignatureCanvas from '@/components/SignatureCanvas';
-import { supabase } from '@/lib/supabase';
+
+// 클라이언트에서만 Supabase 초기화
+const getSupabase = () => {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+  return createClient(supabaseUrl, supabaseAnonKey);
+};
 
 export default function Home() {
   const [fileName, setFileName] = useState('');
@@ -43,6 +50,7 @@ export default function Home() {
 
       const finalFileName = `${sanitizedFileName}_${Date.now()}.png`;
 
+      const supabase = getSupabase();
       const { error } = await supabase.storage
         .from('signatures')
         .upload(finalFileName, blob, {
